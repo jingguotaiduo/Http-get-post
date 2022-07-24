@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>HTML页面测试XHR请求 By jing_zhong</title>
+        <script>
+            //获取系统当前时间的函数
+            function gettime(){
+                var a = new Date();
+                var b = a.toLocaleTimeString();
+                var c = a.toLocaleDateString();
+                document.getElementById("currenttime").innerHTML = c+"&nbsp"+b +" By jing_zhong";
+            }
+            setInterval(function() {gettime()},1000);
+            var responsecontent;
+            //发送HTTP请求的函数
+            function SendXMLHttpRequest() {
+                var xmlhttp,url="http://112.125.90.247:81/api/Data/Post";
+                if (window.XMLHttpRequest){
+                    xmlhttp = new XMLHttpRequest();//  IE7+, Firefox, Chrome, Opera, Safari 浏览器执行代码
+                }
+                else{
+                    xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");// IE6, IE5 浏览器执行代码
+                }
+                xmlhttp.onreadystatechange=function(){
+                    if (xmlhttp.readyState==4 && xmlhttp.status==200){
+                        responsecontent = xmlhttp.responseText;
+                        var Res = "成功获取HTTP响应,得到结果!\n"+responsecontent;
+                        document.getElementById("result").innerText = Res;
+                        document.getElementById("convertjson").disabled = false;
+                        document.getElementById("jsonresult").innerText = "";
+                    }
+                }
+                xmlhttp.open("POST",url,true);
+                xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");// Post请求需要设置请求头
+                xmlhttp.send("Id="+"string"+"&Name="+"string"+"&X="+"123"+"&Y="+"456"+"&Num="+"0"+"&Note="+"string"+"&Attachment="+"string"+"&CreateTime="+"2022-07-19T15:33:28.504Z"+"&UpdateTime="+"2022-07-19T15:33:28.504Z");
+            }
+            //对json数据进行高亮的函数
+            function syntaxHighlight(json) {
+                if (typeof json != 'string') {
+                    json = JSON.stringify(json, undefined, 2);
+                }
+                json = json.replace(/&/g, '&').replace(/</g, '<').replace(/>/g, '>');
+                return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function(match) {
+                    var cls = 'number';
+                    if (/^"/.test(match)) {
+                        if (/:$/.test(match)) {
+                            cls = 'key';
+                        } else {
+                            cls = 'string';
+                        }
+                    } else if (/true|false/.test(match)) {
+                        cls = 'boolean';
+                    } else if (/null/.test(match)) {
+                        cls = 'null';
+                    }
+                    return '<span class="' + cls + '">' + match + '</span>';
+                });
+            }
+            //将请求结果转为json格式的函数
+            function ToJSON() {
+                console.log(responsecontent);
+                var Res = JSON.parse(responsecontent, null, 3);
+                document.getElementById("jsonresult").innerHTML = syntaxHighlight(Res);
+            }
+        </script>
+        <style>
+            pre { background-color:rgb(238, 231, 231); outline: 1px solid #ccc; padding: 5px; margin: 5px; }
+            .string { color: rgb(22, 10, 126); }
+            .number { color: rgb(13, 214, 124); }
+            .boolean { color: rgb(225, 97, 195); }
+            .null { color: rgb(172, 167, 14); }
+            .key { color: #cf4914; }
+            #myDiv { background-image: url("https://img2.baidu.com/it/u=1721953618,4133119400&fm=253&fmt=auto&app=138&f=JPEG");}
+        </style>
+    </head>
+    <body>
+        <div id="myDiv">
+            <label id="currenttime" style="color: #AC2925; "></label>
+            <button type="button" onclick="SendXMLHttpRequest()">1、利用XMLHttpRequest发送请求</button>
+            <p id="result" style="color:#b0a117fa"></p>
+            <button type="button" disabled="false" onclick="ToJSON()" id="convertjson">2、将请求结果转为json格式</button>
+            <pre id="jsonresult" class="pre"></pre>
+        </div>
+    </body>
+</html>
